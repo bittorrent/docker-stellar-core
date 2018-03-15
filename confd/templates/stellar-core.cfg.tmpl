@@ -1,6 +1,8 @@
 LOG_FILE_PATH="{{getenv "LOG_FILE_PATH"}}"
 
-BUCKET_DIR_PATH="/data/buckets"
+{{if (getenv "BUCKET_DIR_PATH")}}
+BUCKET_DIR_PATH="{{getenv "BUCKET_DIR_PATH"}}"
+{{end}}
 
 DATABASE="{{getenv "DATABASE"}}"
 
@@ -8,7 +10,9 @@ HTTP_PORT=11626
 
 PUBLIC_HTTP_PORT=true
 
+{{if (getenv "HTTP_MAX_CLIENT")}}
 HTTP_MAX_CLIENT={{getenv "HTTP_MAX_CLIENT"}}
+{{end}}
 
 {{if (getenv "COMMANDS")}}
 COMMANDS=[{{$commands := split (getenv "COMMANDS") ","}}
