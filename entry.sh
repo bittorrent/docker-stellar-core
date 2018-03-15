@@ -1,26 +1,31 @@
 #!/usr/bin/env bash
-
 set -ue
 
-function stellar_core_init_db() {
-  local DB_INITIALIZED="/data/.db-initialized"
+# Wait for postgres
+export PGPASSWORD=${DB_PASS}
+while ! psql -h "${DB_HOST}" -U "${DB_USER}" -c 'select 1' ${DB_NAME} &> /dev/null ; do
+  echo "Waiting for postgres to be available..."
+  sleep 1
+done
 
-  if [ -f $DB_INITIALIZED ]; then
-    echo "core db already initialized. continuing on..."
-    return 0
-  fi
+# Wait 3 more seconds for postgres to restart itself
+sleep 3
 
-  echo "initializing core db..."
 
-  stellar-core --conf /stellar-core.cfg -newdb
-
-  echo "finished initializing core db"
-
-  touch $DB_INITIALIZED
-}
-
+# Run confd to update config templates with environment variables
 confd -onetime -backend env -log-level error
 
-stellar_core_init_db
 
+# Check if DB needs to be initialized
+DB_INITIALIZED_MARKER="/data/core/.db-initialized"
+
+if [ ! -f ${DB_INITIALIZED_MARKER} ]; then
+    echo "initializing core db..."
+    stellar-core --conf /stellar-core.cfg -newdb
+    mkdir -p /data/core
+    touch ${DB_INITIALIZED_MARKER}
+fi
+
+
+echo "starting stellar-core..."
 exec "$@"

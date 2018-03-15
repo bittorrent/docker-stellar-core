@@ -1,35 +1,28 @@
-FROM debian:stretch
+FROM debian:stretch-slim
 
-# git tag from https://github.com/stellar/stellar-core
-ARG STELLAR_CORE_VERSION="v9.1.0"
-ARG STELLAR_CORE_BUILD_DEPS="git build-essential pkg-config autoconf automake libtool bison flex libpq-dev wget"
-ARG STELLAR_CORE_DEPS="curl libpq5"
-ARG CONFD_VERSION="0.12.0"
+ARG STELLAR_CORE_VERSION="9.2.0-543-a8b6a9dc"
+ARG CONFD_VERSION="0.15.0"
 
-LABEL maintainer="hello@satoshipay.io"
+# Install utils. Create man folders to workaround this issue with debian stretch-slim https://github.com/debuerreotype/debuerreotype/issues/10
+RUN apt-get update && mkdir -p /usr/share/man/man1 /usr/share/man/man7 \
+    && apt-get install -y curl postgresql-client \
+    && rm -rf /var/lib/apt/lists/*
 
-# install stellar core and confd
-ADD install.sh /
-RUN /install.sh
+# Install stellar-core
+RUN curl -sL -o stellar-core.deb https://s3.amazonaws.com/stellar.org/releases/stellar-core/stellar-core-${STELLAR_CORE_VERSION}_amd64.deb \
+    && dpkg -i stellar-core.deb \
+    && rm stellar-core.deb
 
-VOLUME /data
+# Install confd for config file management
+RUN curl -sL -o /usr/local/bin/confd https://github.com/kelseyhightower/confd/releases/download/v${CONFD_VERSION}/confd-${CONFD_VERSION}-linux-amd64 \
+    && chmod +x /usr/local/bin/confd
 
-# peer port
+# Peer port (11625) and HTTP port (11626) (do NOT expose HTTP port publicly)
 EXPOSE 11625
-
-# HTTP port (do NOT expose publicly)
 EXPOSE 11626
 
-# configuration options, see here for docs:
-# https://github.com/stellar/stellar-core/blob/master/docs/stellar-core_example.cfg
-ENV \
-  DATABASE="sqlite3:///data/stellar.db" \
-  HTTP_MAX_CLIENT="128" \
-  NETWORK_PASSPHRASE="Public Global Stellar Network ; September 2015"
+COPY confd /etc/confd
+COPY entry.sh /
 
-ADD confd /etc/confd
-
-ADD entry.sh /
 ENTRYPOINT ["/entry.sh"]
-
 CMD ["/usr/local/bin/stellar-core", "--conf", "/stellar-core.cfg"]
