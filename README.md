@@ -1,10 +1,17 @@
 # Stellar Core Docker image
 
-[![Docker Pulls](https://img.shields.io/docker/pulls/satoshipay/stellar-core.svg)](https://hub.docker.com/r/satoshipay/stellar-core/)
-
 ## Docker Hub
 
-The Docker images are automatically built and published at [satoshipay/stellar-core](https://hub.docker.com/r/satoshipay/stellar-core/).
+The Docker images are automatically built and published at [starformlabs/stellar-core](https://hub.docker.com/r/starformlabs/stellar-core/).
+
+## Credit
+
+This repo was originally forked from [satoshipay/docker-stellar-core](https://github.com/satoshipay/docker-stellar-core). 
+The following are the primary changes.
+
+ - Use debian:stretch-slim for the base image
+ - Install from binaries instead of source
+ - Add a check to makes sure that postgres is up before starting
 
 ## Configuration
 
@@ -14,7 +21,7 @@ The container can be fully configured via environment variables.
 
 If you don't have a node seed yet you can create one by running
 ```
-docker run --rm -it --entrypoint '' satoshipay/stellar-core stellar-core --genseed
+docker run --rm -it --entrypoint '' starformlabs/stellar-core stellar-core --genseed
 ```
 Use the *Secret seed* **only** for the `NODE_SEED` env variable and tell other nodes
 your *Public* key.
