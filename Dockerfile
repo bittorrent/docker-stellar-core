@@ -1,6 +1,6 @@
 FROM debian:stretch-slim
 
-ARG STELLAR_CORE_VERSION="9.2.0rc5-542-ab2811b2"
+ARG STELLAR_CORE_VERSION="9.2.0-546-b0923f15"
 ARG CONFD_VERSION="0.15.0"
 
 # Install utils. Create man folders to workaround this issue with debian stretch-slim https://github.com/debuerreotype/debuerreotype/issues/10
