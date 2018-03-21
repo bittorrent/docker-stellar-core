@@ -3,9 +3,9 @@ FROM debian:stretch-slim
 ARG STELLAR_CORE_VERSION="9.2.0-551-7561c1d5"
 ARG CONFD_VERSION="0.15.0"
 
-# Install utils. Create man folders to workaround this issue with debian stretch-slim https://github.com/debuerreotype/debuerreotype/issues/10
+# Install runtime dependencies and utils. Create man folders to workaround this issue with debian stretch-slim https://github.com/debuerreotype/debuerreotype/issues/10
 RUN apt-get update && mkdir -p /usr/share/man/man1 /usr/share/man/man7 \
-    && apt-get install -y curl postgresql-client \
+    && apt-get install -y --no-install-recommends libpq5 libsqlite3-0 curl ca-certificates postgresql-client \
     && rm -rf /var/lib/apt/lists/*
 
 # Install stellar-core
